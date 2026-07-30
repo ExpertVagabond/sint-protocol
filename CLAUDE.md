@@ -1,9 +1,5 @@
 # SINT Protocol — Agent Guide
 
-This file helps AI agents (and humans) understand and contribute to the SINT Protocol codebase.
-
-## What is this?
-
 SINT is a security enforcement layer for physical AI. It sits between AI agents and the physical world (robots, tool calls, actuators) ensuring every action is authorized, constrained, and audited.
 
 ## Quick Commands
@@ -11,21 +7,11 @@ SINT is a security enforcement layer for physical AI. It sits between AI agents 
 ```bash
 pnpm install          # Install dependencies
 pnpm run build        # Build all packages (required before test)
-pnpm run test         # Run all tests (currently 1,728 passing)
+pnpm run test         # Run all tests
 pnpm run typecheck    # Type-check without emitting
-pnpm run clean        # Remove build artifacts
-pnpm run bench        # Run PolicyGateway performance benchmarks (p50/p99 latency)
-```
-
-Run a single package:
-```bash
-pnpm --filter @sint/gate-policy-gateway test
-pnpm --filter @sint/bridge-mcp test
-```
-
-Start the gateway server:
-```bash
-pnpm --filter @sint/gateway-server dev
+pnpm run bench        # PolicyGateway performance benchmarks (p50/p99 latency)
+pnpm --filter @sint/gate-policy-gateway test   # single package
+pnpm --filter @sint/gateway-server dev         # start gateway (port 3000)
 ```
 
 ## Monorepo Layout
@@ -44,20 +30,12 @@ packages/conformance-tests/ → Security regression suite (must pass on every PR
 
 ## Architecture Rules
 
-### 1. Every action flows through PolicyGateway.intercept()
-No bridge adapter, route handler, or service should make authorization decisions independently. All requests go through the gateway.
-
-### 2. Result<T, E> — never throw
-All fallible operations return `{ ok: true, value: T } | { ok: false, error: E }`. Use the `ok()` and `err()` helpers from `@sint/core`. Never use try/catch for control flow.
-
-### 3. Attenuation only
-Delegated capability tokens can only _reduce_ permissions (narrower resource, fewer actions, tighter constraints). Never escalate.
-
-### 4. Append-only ledger
-The evidence ledger is INSERT-only. Events are SHA-256 hash-chained. No updates, no deletes.
-
-### 5. Interface-first persistence
-Storage adapters implement interfaces from `@sint/persistence`. In-memory implementations are used for testing. PostgreSQL/Redis adapters are planned.
+1. **Every action flows through `PolicyGateway.intercept()`** — no bridge adapter, route handler, or service makes authorization decisions independently.
+2. **Result<T, E> — never throw.** All fallible operations return `{ ok, value } | { ok, error }` via `ok()`/`err()` helpers from `@sint/core`. Never use try/catch for control flow.
+3. **Attenuation only.** Delegated capability tokens can only _reduce_ permissions. Never escalate.
+4. **Append-only ledger.** Evidence ledger is INSERT-only, SHA-256 hash-chained. No updates, no deletes.
+5. **Interface-first persistence.** Storage adapters implement interfaces from `@sint/persistence`; in-memory implementations for testing.
+6. **Circuit breaker fail-open:** if a plugin throws, treat circuit as CLOSED.
 
 ## Approval Tiers (T0–T3)
 
@@ -68,154 +46,30 @@ Storage adapters implement interfaces from `@sint/persistence`. In-memory implem
 | T2 | `T2_ACT` | No — escalate | Physical state change (move robot, operate gripper) |
 | T3 | `T3_COMMIT` | No — human required | Irreversible (exec code, transfer funds, mode change) |
 
-Tier rules are in `packages/core/src/constants/tiers.ts`.
-
-## Key Types
-
-```typescript
-// The request entering the gate
-interface SintRequest {
-  requestId: UUIDv7;
-  agentId: Ed25519PublicKey;
-  tokenId: UUIDv7;
-  resource: string;          // "ros2:///cmd_vel" or "mcp://filesystem/writeFile"
-  action: string;            // "publish", "call", "subscribe"
-  params: Record<string, unknown>;
-  physicalContext?: { humanDetected?, currentVelocityMps?, currentForceNewtons? };
-  recentActions?: string[];  // For forbidden combo detection
-}
-
-// The gateway's decision
-interface PolicyDecision {
-  action: "allow" | "deny" | "escalate" | "transform";
-  assignedTier: ApprovalTier;
-  assignedRisk: RiskTier;
-  denial?: { reason, policyViolated, suggestedAlternative? };
-  escalation?: { requiredTier, reason, timeoutMs, fallbackAction };
-  transformations?: { constraintOverrides?, additionalAuditFields? };
-}
-```
-
-## Dependency Graph
-
-```
-@sint/core
-  ↓
-@sint/gate-capability-tokens   @sint/persistence
-  ↓                               ↓
-@sint/gate-evidence-ledger
-  ↓
-@sint/gate-policy-gateway
-  ↓
-@sint/bridge-mcp   @sint/bridge-ros2
-  ↓                    ↓
-@sint/gateway-server
-  ↓
-@sint/conformance-tests
-```
+Tier rules: `packages/core/src/constants/tiers.ts`. Key request/decision types: `packages/core/src/` (`SintRequest`, `PolicyDecision`).
 
 ## Coding Conventions
 
-- **TypeScript strict mode** — `noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`
-- **ES modules** — All packages use `"type": "module"` with `.js` extensions in imports
-- **Readonly by default** — Interface fields are `readonly`
-- **Zod for validation** — Runtime validation at system boundaries
-- **Vitest for testing** — `describe`/`it`/`expect` pattern
-- **@noble for crypto** — Ed25519 signatures + SHA-256 hashing (audited, zero-dep)
-- **UUIDv7 for IDs** — Sortable, timestamp-prefixed identifiers
-- **ISO 8601 timestamps** — Microsecond precision (`2026-03-16T12:00:00.000000Z`)
+- TypeScript strict mode (`noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`)
+- ES modules — `"type": "module"` with `.js` extensions in imports
+- Readonly-by-default interface fields; Zod at boundaries; Vitest
+- **@noble for crypto** (audited, zero-dep); **UUIDv7 for IDs**; ISO 8601 microsecond timestamps
 
 ## Adding a New Package
 
-1. Create `packages/<name>/package.json` with `"name": "@pshkv/<name>"`
-2. Create `packages/<name>/tsconfig.json` extending `../../tsconfig.base.json`
-3. Create `packages/<name>/vitest.config.ts`
-4. Create `packages/<name>/src/index.ts` with exports
-5. Add `{ "path": "../<dependency>" }` to `tsconfig.json` references
-6. Run `pnpm install` to link workspace dependencies
-
-## Common Patterns
-
-### Issuing a token
-```typescript
-import { generateKeypair, issueCapabilityToken } from "@pshkv/gate-capability-tokens";
-const root = generateKeypair();
-const agent = generateKeypair();
-const result = issueCapabilityToken({
-  issuer: root.publicKey,
-  subject: agent.publicKey,
-  resource: "mcp://filesystem/*",
-  actions: ["call"],
-  constraints: {},
-  delegationChain: { parentTokenId: null, depth: 0, attenuated: false },
-  expiresAt: "2026-12-31T23:59:59.000000Z",
-  revocable: true,
-}, root.privateKey);
-```
-
-### Intercepting an MCP tool call
-```typescript
-import { MCPInterceptor } from "@pshkv/bridge-mcp";
-const interceptor = new MCPInterceptor({ gateway });
-const sessionId = interceptor.createSession({ agentId, tokenId, serverName: "filesystem" });
-const result = interceptor.interceptToolCall(sessionId, {
-  callId: "call-1", serverName: "filesystem", toolName: "writeFile",
-  arguments: { path: "/tmp/test.txt" }, timestamp: "...",
-});
-// result.action === "forward" | "deny" | "escalate"
-```
-
-### Intercepting a ROS 2 publish
-```typescript
-import { ROS2Interceptor } from "@pshkv/bridge-ros2";
-const interceptor = new ROS2Interceptor({ gateway, agentId, tokenId, robotMassKg: 25 });
-const result = interceptor.interceptPublish({
-  topicName: "/cmd_vel", messageType: "geometry_msgs/Twist",
-  data: { linear: { x: 0.5, y: 0, z: 0 }, angular: { x: 0, y: 0, z: 0 } },
-  timestamp: "...",
-});
-```
-
-## Current Status
-
-**1,710+ tests passing across 42 packages** (as of 2026-04-11)
-
-- **Phase 1** (complete): Security Wedge — tokens, gateway, ledger, conformance tests
-- **Phase 2** (complete): Bridge adapters (MCP, ROS2, MAVLink, Swarm, A2A, Economy), approval flow, persistence, server
-- **Phase 3** (complete): EconomyPlugin, CircuitBreakerPlugin, CSML escalation, DynamicEnvelopePlugin, OWASP ASI coverage map
-- **Phase 4** (complete): `@sint/bridge-iot` (MQTT/CoAP), ASI01 GoalHijackPlugin, ASI06 MemoryIntegrityPlugin, PostgreSQL adapters
-- **Phase 5** (complete): OWASP ASI01-ASI10 conformance fixtures, APS-SINT-MCP handshake spec, ASI03/ASI05 security fixes, sint-mcp production proxy, token registry, Python SDK, Rust SDK
-- **Phase 6** (complete): ASI06 cross-session/credential-funnel/velocity-loop checks, bridge test coverage (+42 tests), latency fast-path fix (steadyP99 5ms)
-- **Phase 7** (complete): `@sint/memory`, `@sint/interface-bridge`, voice-only HUD, sint__ operator tools
-- **Phase 8** (complete): `ProactiveEscalationEngine`, delegation tree, Console API routes (`/v1/memory`, `/v1/delegations`, `/v1/csml`)
-- **Phase 9** (complete): `@sint/token-registry` (public capability token registry, 18 tests), `SafetyPermitPlugin` (async external hardware safety resolver, fail-open), `IotInterceptor` (56 tests in bridge-iot), `/v1/registry` gateway routes, latency benchmark stabilised for parallel CI
-- **Phase 10** (next): npm publish, Constraint Language CL-1.0, Rust SDK, sintctl registry CLI commands, Show HN
+1. `packages/<name>/package.json` with `"name": "@pshkv/<name>"`
+2. `tsconfig.json` extending `../../tsconfig.base.json` + `{ "path": "../<dep>" }` references
+3. `vitest.config.ts`, `src/index.ts`, then `pnpm install` to link
 
 ## Multi-Agent Coordination
 
-Multiple agents and developers may work on this repo concurrently. Follow these rules to avoid conflicts:
+Multiple agents/developers may work concurrently. Before starting: `git pull --rebase`, then `pnpm run build` and `pnpm run test` — must be 0 failures before and after your change. Add a conformance test for any new security invariant.
 
-### Package Ownership (by focus area)
-| Area | Packages | Notes |
-|------|----------|-------|
-| Security core | `@sint/core`, `@sint/gate-capability-tokens`, `@sint/gate-policy-gateway` | High churn — check latest commit before modifying |
-| Bridges | `@sint/bridge-*` | Each bridge is independent — parallel work safe |
-| Engine | `@sint/engine-*` | AI execution layer — coordinate on `engine.ts` types |
-| Server/client | `@sint/gateway-server`, `@sint/client` | API surface — check for route conflicts |
-| Conformance | `@sint/conformance-tests` | Add tests here for any new security invariant |
+### Known Collision Risks / Gotchas
+- `SintDeploymentProfile` exists in `policy.ts` (site profiles); engine version was renamed `SintHardwareDeploymentProfile`. Do not re-add generic names in engine packages.
+- requestId MUST be UUID v7 — `crypto.randomUUID()` produces v4 and fails schema validation. Use `generateUUIDv7()` from `@sint/gate-capability-tokens`.
+- `CircuitBreakerPlugin.trip()` sets `manualTrip=true`, permanently preventing auto-HALF_OPEN. Tests exercising auto-recovery must open the circuit via `recordDenial`, not `trip()`.
 
-### Before Starting Work
-1. **Pull latest** — `git pull --rebase`
-2. **Run build** — `pnpm run build` — if it fails, fix before adding features
-3. **Run tests** — `pnpm run test` — must be 0 failures before and after your change
+## Status
 
-### Common Name Collision Risks
-- `SintDeploymentProfile` exists in both `policy.ts` (site profiles) and was renamed in `engine.ts` to `SintHardwareDeploymentProfile`. Do not re-add generic names in engine packages.
-- UUID format: requestId MUST be UUID v7 (version digit `7` at position 14) — `crypto.randomUUID()` produces v4 and will fail schema validation. Use the `generateUUIDv7()` helper from `@sint/gate-capability-tokens`.
-- `CircuitBreakerPlugin.trip()` sets `manualTrip=true` — this permanently prevents auto-HALF_OPEN. Tests that want to test the auto-recovery path must open the circuit via `recordDenial`, not `trip()`.
-
-### What's In Progress
-Check `git log --oneline -10` to see what landed recently. Key invariants to respect:
-- `PolicyGateway.intercept()` is the single choke point — every authorization decision must flow through it
-- Evidence ledger events are append-only and hash-chained — never modify emitted events
-- Circuit breaker fail-open: if plugin throws, treat circuit as CLOSED
+Phases 1–9 complete (security wedge, bridges incl. MCP/ROS2/MAVLink/IoT, OWASP ASI01–ASI10 conformance, token registry, Python/Rust SDKs). Phase 10 next: npm publish, Constraint Language CL-1.0, sintctl registry CLI, Show HN. Check `git log --oneline -10` for what landed recently.
