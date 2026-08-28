@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-economy",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Protocol Economy Bridge — Port/adapter integration with external economy services (balance, budget, trust, pricing)",
   "type": "module",

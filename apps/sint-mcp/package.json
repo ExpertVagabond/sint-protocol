@@ -1,5 +1,6 @@
 {
   "name": "sint-mcp",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT MCP — Security-first multi-MCP proxy server with policy enforcement",
   "type": "module",

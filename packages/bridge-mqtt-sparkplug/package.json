@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-mqtt-sparkplug",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Bridge — MQTT Sparkplug profile adapter for industrial IoT command and telemetry governance",
   "type": "module",

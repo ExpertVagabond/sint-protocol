@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/client",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Client SDK — TypeScript client for the SINT Gateway",
   "type": "module",

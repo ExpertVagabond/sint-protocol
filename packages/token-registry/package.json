@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/token-registry",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "type": "module",
   "exports": {

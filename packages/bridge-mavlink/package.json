@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-mavlink",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Protocol MAVLink bridge \u2014 UAV/drone command interception and safety enforcement",
   "type": "module",

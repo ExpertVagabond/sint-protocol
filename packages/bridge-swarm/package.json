@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-swarm",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Protocol swarm coordination bridge — collective constraint enforcement for multi-agent physical systems",
   "type": "module",

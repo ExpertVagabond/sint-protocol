@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/capsule-inspection",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "1.0.0",
   "description": "SINT Reference Capsule — Visual anomaly detection for manufacturing QA",
   "type": "module",

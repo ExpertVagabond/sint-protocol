@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/engine-hal",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Protocol Hardware Abstraction Layer — auto-detect hardware, select deployment profile",
   "type": "module",

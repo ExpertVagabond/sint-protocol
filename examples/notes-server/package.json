@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/example-notes-server",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "private": true,
   "description": "Example: minimal MCP server with SINT protection",

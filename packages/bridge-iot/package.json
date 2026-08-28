@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-iot",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Bridge \u2014 MQTT/CoAP edge IoT bridge for constrained devices",
   "type": "module",

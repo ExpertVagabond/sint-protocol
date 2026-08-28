@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/interface-bridge",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "Operator interface bridge for SINT Protocol — voice, HUD, memory, notification tools",
   "type": "module",

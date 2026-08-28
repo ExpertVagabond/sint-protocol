@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/sdk",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.2.0",
   "description": "SINT Protocol TypeScript/Node.js SDK",
   "type": "module",

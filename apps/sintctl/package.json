@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/sintctl",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT operator CLI for token, approval, ledger, and intercept workflows",
   "type": "module",

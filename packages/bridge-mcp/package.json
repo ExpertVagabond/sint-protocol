@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-mcp",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Bridge — MCP adapter: intercepts AI agent tool calls through the security gate",
   "type": "module",

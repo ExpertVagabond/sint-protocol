@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/gate-capability-tokens",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Gate — Capability token issuance, validation, delegation, and revocation",
   "type": "module",

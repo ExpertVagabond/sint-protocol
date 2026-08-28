@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/badge-server",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Protocol badge server — sint.cloud/badge/project/{id}.svg",
   "type": "module",

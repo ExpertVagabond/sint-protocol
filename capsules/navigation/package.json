@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/capsule-navigation",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "1.0.0",
   "description": "SINT Reference Capsule — Waypoint following navigation",
   "type": "module",

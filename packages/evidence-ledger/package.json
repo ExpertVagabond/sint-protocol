@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/gate-evidence-ledger",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Gate — Append-only tamper-evident Evidence Ledger",
   "type": "module",

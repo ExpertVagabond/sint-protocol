@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/core",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Protocol core types, schemas, and constants",
   "type": "module",

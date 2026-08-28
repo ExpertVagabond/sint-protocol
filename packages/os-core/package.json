@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/os-core",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT OS Core — unified entrypoint for the SINT Operating System. Combines OpenClaw runtime, SINT Protocol governance, avatar face, and multimodal bridge.",
   "type": "module",

@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/persistence-postgres",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Persistence — production PostgreSQL backend for EvidenceLedger and RevocationStore",
   "type": "module",

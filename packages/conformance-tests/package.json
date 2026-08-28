@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/conformance-tests",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Protocol conformance and security regression test suite",
   "type": "module",

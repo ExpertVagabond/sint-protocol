@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-open-rmf",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Bridge — Open-RMF profile adapter for multi-fleet dispatch and facility workflows",
   "type": "module",

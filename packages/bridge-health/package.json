@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/bridge-health",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Bridge — Health & Wellbeing: FHIR + HealthKit/Health Connect governance with consent primitives",
   "type": "module",

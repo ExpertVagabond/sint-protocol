@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/memory",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "Persistent operator memory with ledger-backed audit trail for SINT Protocol",
   "type": "module",

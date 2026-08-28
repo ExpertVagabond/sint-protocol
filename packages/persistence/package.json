@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/persistence",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "SINT Persistence — storage interfaces and adapters for ledger, tokens, and revocation",
   "type": "module",

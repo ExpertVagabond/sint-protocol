@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/capsule-pick-and-place",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "1.0.0",
   "description": "SINT Reference Capsule — Gripper control for pick-and-place tasks",
   "type": "module",

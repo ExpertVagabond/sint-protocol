@@ -1,5 +1,6 @@
 {
   "name": "@pshkv/dashboard",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "private": true,
   "type": "module",
